@@ -1,0 +1,6 @@
+[submodule "gym-gomoku"]
+	path = gym-gomoku
+	url = https://github.com/derpferd/gym-gomoku.git
+[submodule "openai_gym"]
+	path = openai_gym
+	url = https://github.com/openai/gym.git
