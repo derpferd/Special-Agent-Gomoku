@@ -1,6 +1,5 @@
 from .agent import Agent
-
-loaded_agents = {}
+from .agent import AgentConfig
 
 
 def agent_class_filter(x):
@@ -8,19 +7,27 @@ def agent_class_filter(x):
     return inspect.isclass(x) and issubclass(x, Agent) and x not in [Agent]
 
 
-def import_agents():
+loaded_agents = None
+
+
+def load_agents(verbose=False, warn=False):
+    global loaded_agents
+    if loaded_agents is not None:
+        return loaded_agents
     from importlib import import_module
     import os
     import inspect
 
-    print("Agents", os.listdir(os.path.dirname(__file__)))
+    loaded_agents = {}
+
     for d in os.listdir(os.path.dirname(__file__)):
         d_path = os.path.join(os.path.dirname(__file__), d)
         if os.path.isdir(d_path) and \
                 not d.startswith("_") and \
                 not d.startswith(".") and \
                 os.path.exists(os.path.join(d_path, "agent.py")):
-            print("Importing '{}'...".format(d))
+            if verbose:
+                print("Importing '{}'...".format(d))
             import_module("agents.{}.agent".format(d))
             mod = getattr(globals()[d], "agent")
             mems = inspect.getmembers(mod, agent_class_filter)
@@ -28,7 +35,12 @@ def import_agents():
                 AgentClass = inspect.getmembers(mod, agent_class_filter)[0][1]
                 loaded_agents[d] = AgentClass
             else:
-                print("Error loading agent '{}'.".format(d))
+                if warn:
+                    print("Error loading agent '{}'.".format(d))
+    return loaded_agents
 
 
-import_agents()
+def reload_agents():
+    global loaded_agents
+    loaded_agents = None
+    return load_agents()

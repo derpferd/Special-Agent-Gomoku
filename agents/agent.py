@@ -4,7 +4,17 @@ from typing import List
 from gym_gomoku import GomokuState
 
 
+class AgentConfig:
+    id: str
+    name: str
+
+
 class Agent:
+    config: AgentConfig
+
+    def __init__(self, config):
+        self.config = config
+
     def start_game(self, action_space: List[int]) -> None:
         """This function is run anytime a new game is started.
 

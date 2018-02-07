@@ -8,7 +8,7 @@ Run the following command to clone the repo and it's submodules (they are requir
 To start development run the following:
 ```bash
 pip install pipenv
-pipenv install --dev --three
+pipenv install --dev --python 3.6
 ```
 To run:
 ```bash
