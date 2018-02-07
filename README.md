@@ -14,3 +14,10 @@ To run:
 ```bash
 pipenv run python run.py
 ```
+
+## Getting Started
+Run to random agents vs each other.
+```bash
+pipenv run python run.py configs/test/random.json
+```
+Play around by adding the `-v`, `-vv` and `-vvv` options.
