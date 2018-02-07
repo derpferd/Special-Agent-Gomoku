@@ -88,6 +88,10 @@ def test(config: Config):
         print("{}: {} of {}".format(agent, score, config.rounds))
 
 
+def train(config: Config):
+    raise NotImplemented("The training feature isn't implemented yet.")
+
+
 @click.command()
 @click.argument('config', type=click.File('r'))
 @click.option('-m', '--model-dir', type=click.Path(file_okay=False), default="models")
@@ -111,6 +115,11 @@ def main(config, model_dir, verbose):
 
     if config.type == ConfigType.test:
         test(config)
+    elif config.type == ConfigType.train:
+        train(config)
+    else:
+        raise NotImplemented("Sorry currently only support for 'test' and 'train' configs is available. "
+                             "Maybe check your config type or update this package.")
 
 
 if __name__ == '__main__':
