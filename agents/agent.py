@@ -7,6 +7,7 @@ from gym_gomoku import GomokuState
 class AgentConfig:
     id: str
     name: str
+    is_human: bool
 
 
 class Agent:

@@ -25,10 +25,12 @@ class Verbosity(IntEnum):
 class AgentTestConfig(AgentConfig):
     id: str
     name: str
+    is_human: bool
     load: bool
     load_id: int
+    verbose: Verbosity
 
-    defaults = {"load": False}
+    defaults = {"load": False, "is_human": False}
 
     @classmethod
     def from_json(cls, obj):
@@ -37,6 +39,10 @@ class AgentTestConfig(AgentConfig):
         config = cls()
         config.id = obj.pop("id")
         config.name = obj.pop("name")
+
+        config.is_human = cls.defaults["is_human"]
+        if config.name == "human":
+            config.is_human = True
         config.load = cls.defaults["load"]
         if "load_id" in obj:
             config.load = True
@@ -58,7 +64,7 @@ class Config:
     env: str
     rounds: int
     models_dir: str
-    verbose: Verbosity
+    _verbose: Verbosity
     defaults = {"env": "Gomoku19x19-v1", "rounds": 1}
 
     # Test type only
@@ -85,6 +91,7 @@ class Config:
 
         assert len(obj) == 0, "Config had unknown key(s): [{}]".format(", ".join(obj.keys()))
 
+        config.verbose = None
         return config
 
     @classmethod
@@ -102,6 +109,17 @@ class Config:
             config.agents += [AgentTestConfig.from_json(agent_obj)]
         assert len(set([x.id for x in config.agents])) == len(config.agents), "Each agent id must be unique."
         return config
+
+    @property
+    def verbose(self) -> Verbosity:
+        return self._verbose
+
+    @verbose.setter
+    def verbose(self, value: Verbosity):
+        self._verbose = value
+        if self.agents:
+            for agent in self.agents:
+                agent.verbose = value
 
 
 def get_model_dir(model_dir, model_dir_name):

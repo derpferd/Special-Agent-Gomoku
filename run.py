@@ -37,14 +37,12 @@ def play_game(env_gen: Callable[[], GomokuEnv], agents: List[Agent], seed: int=N
 
     cur_agent, o_agent = agents  # type: Agent
     env.reset()
-    if verbose.at_level(Verbosity.debug):
-        env.render()
     winner = None
     while not env.done:
+        if verbose.at_level(Verbosity.debug) or cur_agent.config.is_human:
+            env.render()
         action = cur_agent.move(env.state)
         _, reward, done, _ = env.step(action)
-        if verbose.at_level(Verbosity.debug):
-            env.render()
 
         if done:
             cur_agent.end_game(reward == 1)
@@ -56,6 +54,8 @@ def play_game(env_gen: Callable[[], GomokuEnv], agents: List[Agent], seed: int=N
 
         # switch players
         cur_agent, o_agent = o_agent, cur_agent
+    if verbose.at_level(Verbosity.debug) or cur_agent.config.is_human:
+        env.render()
     return winner
 
 
