@@ -47,7 +47,7 @@ def play_game(env_gen: Callable[[], GomokuEnv], agents: List[Agent], seed: int=N
         if done:
             cur_agent.end_game(reward == 1)
             o_agent.end_game(reward != 1)
-            if reward == 1:
+            if reward != 1:
                 winner = cur_agent.config.id
             else:
                 winner = o_agent.config.id
