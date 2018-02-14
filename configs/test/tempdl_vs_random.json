@@ -1,0 +1,14 @@
+{
+  "type": "test",
+  "rounds": 1,
+  "agents": [
+    {
+      "id": "TempD Learner",
+      "name": "tempdl"
+    },
+    {
+      "id": "Computer",
+      "name": "random"
+    }
+  ]
+}
