@@ -4,4 +4,6 @@ Here is a list of all the different agents. Each agent should have it's own read
 
 **Agents:**  
 - Random
+  - This agent picks a random valid move for each move.
 - Human
+  - This "bot" simply asks the human where to place. It also checks to make sure that it only takes valid moves.
