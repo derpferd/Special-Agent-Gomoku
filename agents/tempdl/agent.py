@@ -10,7 +10,6 @@ from gym_gomoku import GomokuState
 class Tempdl(Agent):
     def start_game(self, action_space: List[int]) -> None:
         print('Tempdl agent starting:')
-        
 
     def end_game(self, won: bool) -> None:
         print('Game ended')
@@ -20,14 +19,14 @@ class Tempdl(Agent):
             print('I lost!')
 
     def move(self, state: GomokuState) -> int:
-        #random = choice(list(state.board.valid_actions))
-        #return random
+        # random = choice(list(state.board.valid_actions))
+        # return random
 
         maxvalue = -1
         selected_action = -1
         for action in state.board.valid_actions:
             value = self.evaluate(action, state)
-            if (value > maxvalue):
+            if value > maxvalue:
                 maxvalue = value
                 selected_action = action
         return selected_action
