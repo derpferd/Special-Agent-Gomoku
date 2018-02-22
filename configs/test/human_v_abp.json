@@ -3,11 +3,11 @@
   "rounds": 1,
   "agents": [
     {
-      "id": "Computer",
+      "id": "Human",
       "name": "human"
     },
     {
-      "id": "Computer2",
+      "id": "Computer_abp",
       "name": "abp_v1"
     }
   ]
