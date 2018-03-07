@@ -1,0 +1,14 @@
+{
+  "type": "test",
+  "rounds": 1,
+  "agents": [
+    {
+      "id": "Human",
+      "name": "human"
+    },
+    {
+      "id": "Computer_abp",
+      "name": "abp_v1"
+    }
+  ]
+}

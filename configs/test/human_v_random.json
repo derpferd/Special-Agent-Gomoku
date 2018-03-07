@@ -1,13 +1,13 @@
 {
   "type": "test",
-  "rounds": 1,
+  "rounds": 30,
   "agents": [
     {
-      "id": "Human",
-      "name": "human"
+      "id": "Computer",
+      "name": "random"
     },
     {
-      "id": "Computer",
+      "id": "Computer2",
       "name": "random"
     }
   ]
