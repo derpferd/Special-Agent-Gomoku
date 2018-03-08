@@ -19,6 +19,7 @@ class Layer:
         bias_vector = [p.bias for p in self.perceptrons]
         r = np.matmul(weights_matrix, self._input)
         r = np.add(r, bias_vector)
+        r = np.maximum(r, 0)
         return r
 
     def __repr__(self):
