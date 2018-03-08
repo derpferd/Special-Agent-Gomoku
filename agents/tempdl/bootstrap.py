@@ -27,5 +27,7 @@ class Bootstrap:
         layers = []
         for i in range(n_layers):
             layers.append(Bootstrap.create_layer(n_perceptrons, n_weights))
+        output_layer = Bootstrap.create_layer(1, n_weights)
+        layers.append(output_layer)
         return Mlp(layers)
 

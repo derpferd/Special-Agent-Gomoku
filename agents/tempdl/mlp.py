@@ -8,6 +8,7 @@ class Mlp:
         output = self.layers[0].output(input_vector)
         for i in range(1, len(self.layers)):
             output = self.layers[i].output(output)
+        return output[0]
 
     def __repr__(self):
         s = "\n"
