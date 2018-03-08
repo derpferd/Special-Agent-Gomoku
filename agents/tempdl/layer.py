@@ -3,30 +3,30 @@ import numpy as np
 
 
 class Layer:
-    def __init__(self, n_perceptrons, _input):
-        self.n_perceptrons = n_perceptrons
-        self._input = _input
-        self.perceptrons = [Perceptron(_input) for _ in range(n_perceptrons)]
 
-    def weights_matrix(self):
+    def __init__(self, perceptrons):
+        self.perceptrons = perceptrons
+
+    def __weights_matrix(self):
         weights_matrix = []
         for perceptron in self.perceptrons:
             weights_matrix.append(perceptron.weights)
         return np.array(weights_matrix)
 
-    def output(self):
-        weights_matrix = self.weights_matrix()
+    def output(self, input_vector):
+        weights_matrix = self.__weights_matrix()
         bias_vector = [p.bias for p in self.perceptrons]
-        r = np.matmul(weights_matrix, self._input)
+        if len(input_vector) != len(weights_matrix[0]):
+            raise ValueError("dimensions for input and weights don't match")
+        r = np.matmul(weights_matrix, input_vector)
+        if len(r) != len(bias_vector):
+            raise ValueError("dimensions of matrix multiplication result and bias don't match")
         r = np.add(r, bias_vector)
         r = np.maximum(r, 0)
         return r
 
     def __repr__(self):
         s = "\n =========================== Layer ======================================"
-        s += "\n Input is " + str(self._input)
-        s += "\n Output is " + str(self.output())
-        s += "\n Here are the perceptrons in this layer:"
         for perceptron in self.perceptrons:
             s += str(perceptron)
         return s
