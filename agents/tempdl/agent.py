@@ -5,7 +5,7 @@ from typing import List
 from gym_gomoku import GomokuState
 
 from .. import Agent
-from . import mlp
+import mlp
 
 
 class Tempdl(Agent):
