@@ -6,12 +6,25 @@
 from random import random
 from layer import Layer
 
+
 class Mlp:
 
     def __init__(self, n_layers, _input):
         self.n_layers = n_layers
         self._input = _input
-        self.layers = [Layer(len(_input), _input) for _ in range(n_layers)]
+        self.layers = []
+        self.__create_layers()
+
+    def __create_layers(self):
+        layer = Layer(len(self._input), self._input)
+        for i in range(self.n_layers):
+            self.layers.append(layer)
+            layer = Layer(len(layer.output()), layer.output())
+        output_layer = Layer(1, self.layers[-1].output())
+        self.layers.append(output_layer)
+
+    def output(self):
+        return self.layers[-1].output()
 
     def __repr__(self):
         s = "\n"
@@ -19,10 +32,6 @@ class Mlp:
             s += str(layer)
             s += "\n"
         return s
-
-    def evaluate(self, state):
-        vector = self.vector(state)
-        return random()
 
     @staticmethod
     def vector(state):

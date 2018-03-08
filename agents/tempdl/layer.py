@@ -23,6 +23,9 @@ class Layer:
 
     def __repr__(self):
         s = "\n =========================== Layer ======================================"
+        s += "\n Input is " + str(self._input)
+        s += "\n Output is " + str(self.output())
+        s += "\n Here are the perceptrons in this layer:"
         for perceptron in self.perceptrons:
             s += str(perceptron)
         return s
