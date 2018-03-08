@@ -4,25 +4,14 @@
 # Initialize random weight vector and multiply to get the value of the state
 
 from random import random
-import perceptron
-
+from layer import Layer
 
 class Mlp:
-
-    class Layer:
-        def __init__(self, n_perceptrons, _input):
-            self.layer = [perceptron.Perceptron(_input) for _ in range(n_perceptrons)]
-
-        def __repr__(self):
-            s = "\n =========================== Layer ======================================"
-            for perceptron in self.layer:
-                s += str(perceptron)
-            return s
 
     def __init__(self, n_layers, _input):
         self.n_layers = n_layers
         self._input = _input
-        self.layers = [self.Layer(len(_input), _input) for _ in range(n_layers)]
+        self.layers = [Layer(len(_input), _input) for _ in range(n_layers)]
 
     def __repr__(self):
         s = "\n"
