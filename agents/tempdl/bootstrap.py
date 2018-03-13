@@ -1,7 +1,7 @@
-from perceptron import Perceptron
+from . import perceptron
 from random import random
-from layer import Layer
-from mlp import Mlp
+from . import layer
+from . import mlp
 
 
 class Bootstrap:
@@ -12,7 +12,7 @@ class Bootstrap:
     def create_perceptron_with_random_weights(n_weights):
         weights = [random() for _ in range(n_weights)]
         bias = random()
-        return Perceptron(weights, bias)
+        return perceptron.Perceptron(weights, bias)
 
     # n_weights is number of weights per perceptron
     @staticmethod
@@ -20,7 +20,7 @@ class Bootstrap:
         perceptrons = []
         for i in range(n_perceptrons):
             perceptrons.append(Bootstrap.create_perceptron_with_random_weights(n_weights))
-        return Layer(perceptrons)
+        return layer.Layer(perceptrons)
 
     @staticmethod
     def create_mlp(n_layers, n_perceptrons, n_weights):
@@ -29,5 +29,5 @@ class Bootstrap:
             layers.append(Bootstrap.create_layer(n_perceptrons, n_weights))
         output_layer = Bootstrap.create_layer(1, n_weights)
         layers.append(output_layer)
-        return Mlp(layers)
+        return mlp.Mlp(layers)
 

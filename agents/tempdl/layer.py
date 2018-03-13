@@ -1,4 +1,4 @@
-from perceptron import Perceptron
+
 import numpy as np
 
 
@@ -9,8 +9,8 @@ class Layer:
 
     def __weights_matrix(self):
         weights_matrix = []
-        for perceptron in self.perceptrons:
-            weights_matrix.append(perceptron.weights)
+        for _perceptron in self.perceptrons:
+            weights_matrix.append(_perceptron.weights)
         return np.array(weights_matrix)
 
     def output(self, input_vector):
@@ -27,6 +27,6 @@ class Layer:
 
     def __repr__(self):
         s = "\n =========================== Layer ======================================"
-        for perceptron in self.perceptrons:
-            s += str(perceptron)
+        for _perceptron in self.perceptrons:
+            s += str(_perceptron)
         return s

@@ -3,17 +3,18 @@ from random import random
 from typing import List
 
 from gym_gomoku import GomokuState
-from bootstrap import Bootstrap
+# from bootstrap import Bootstrap
 
 from .. import Agent
-from mlp import Mlp
+# from mlp import Mlp
+from . import bootstrap
 
 
 class Tempdl(Agent):
 
     def start_game(self, action_space: List[int]) -> None:
         print('Tempdl agent starting:')
-        self.mlp = Bootstrap.create_mlp(2, 3, 361)
+        self.mlp = bootstrap.Bootstrap.create_mlp(2, 3, 361)
 
     def end_game(self, won: bool) -> None:
         print('Game ended')
@@ -34,4 +35,5 @@ class Tempdl(Agent):
 
     def evaluate(self, action, state):
         # set state to state after action
+        return random()
         pass
