@@ -10,6 +10,8 @@ name = "pypi"
 "60accb6" = {path = "openai_gym", editable = true}
 "6fc8e67" = {path = "gym-gomoku", editable = true}
 ipython = "*"
+pytest-runner = "*"
+pytest = "*"
 
 
 [packages]

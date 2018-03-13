@@ -1,4 +1,5 @@
 # Author: Vaclav Hasenohrl
+from collections import namedtuple
 from random import choice
 from typing import List
 from math import sqrt, pow
@@ -8,23 +9,28 @@ from .. import Agent
 from gym_gomoku import GomokuState
 
 
+Threat = namedtuple('Threat', ['positions', 'stones'])
+
+
 class Node:
+    WINNING_SCORE = 20000
+    BLOCK_WIN_SCORE = 200000
+
     def __init__(self, parent, pos, free, player, opponent):
         self.parent = parent
         self.pos = pos
         if pos != -1:
             self.f = free - {pos}
-            temp = player.copy()
-            temp.add(pos)
-            self.p = temp.copy()
-            self.o = opponent
+            self.p = player | {pos}
+            self.o = opponent.copy()
         else:
-            self.f = free
-            self.p = player
-            self.o = opponent
+            self.f = free.copy()
+            self.p = player.copy()
+            self.o = opponent.copy()
         self.reward = 0
-        self.threats = []
-        self.attacks = []
+        self.attacks = {}  # A mapping of prospective moves to their score.
+        # self.threats = {}  # A mapping of threats to their scores.
+        # self.attacks = {}  # A mapping of threats to their scores.
 
     # returns the number of (rows/columns)^2 - 1
     def get_board_size(self):
@@ -38,50 +44,43 @@ class Node:
         return False
 
     def get_rewards(self, threat, turn):
+        """
+
+        Args:
+            threat(Threat): A threat given a opp's stone.
+            turn:
+
+        Returns:
+
+        """
+        score = 0
         if turn == 0:
             if not self.is_in(threat[0], self.attacks):
-                if threat[1][0] == 3 and len(threat[0]) == 5:
-                    threat[1][1] = 1000
-                    self.attacks.append(threat)
-                    self.reward += 1000
-                elif threat[1][0] == 4 and len(threat[0]) == 5:
-                    threat[1][1] = 20000
-                    self.attacks.append(threat)
-                    self.reward += 20000
-                elif threat[1][0] == 4 and len(threat[0]) == 6:
-                    threat[1][1] = 20000
-                    self.attacks.append(threat)
-                    self.reward += 20000
-                elif threat[1][0] == 1 and len(threat[0]) == 3:
-                    threat[1][1] = 1
-                    self.attacks.append(threat)
-                    self.reward += 1
-                elif threat[1][0] == 2 and len(threat[0]) == 4:
-                    threat[1][1] = 5
-                    self.attacks.append(threat)
-                    self.reward += 5
-                elif threat[1][0] == 5:
-                    threat[1][1] = 1000000
-                    self.attacks.append(threat)
-                    self.reward += 1000000
+                if threat[1] == 3 and len(threat[0]) == 5:
+                    score = 1000
+                elif threat[1] == 4 and len(threat[0]) == 5:
+                    score = self.WINNING_SCORE
+                elif threat[1] == 4 and len(threat[0]) == 6:
+                    score = self.WINNING_SCORE
+                elif threat[1] == 1 and len(threat[0]) == 3:
+                    score = 1
+                elif threat[1] == 2 and len(threat[0]) == 4:
+                    score = 10
+                elif threat[1] == 5:
+                    score = self.WINNING_SCORE
         else:
-            if not self.is_in(sorted(threat[0]), self.threats):
-                if threat[1][0] == 3 and len(threat[0]) == 5:
-                    threat[1][1] = -10000
-                    self.threats.append(threat)
-                    self.reward -= 10000
-                elif threat[1][0] == 4 and len(threat[0]) == 5:
-                    threat[1][1] = -200000
-                    self.threats.append(threat)
-                    self.reward -= 200000
-                elif threat[1][0] == 4 and len(threat[0]) == 6:
-                    threat[1][1] = -200000
-                    self.threats.append(threat)
-                    self.reward -= 200000
-                elif threat[1][0] == 5:
-                    threat[1][1] = -10000000
-                    self.threats.append(threat)
-                    self.reward -= 10000000
+            if not self.is_in(sorted(threat[0]), self.attacks):
+                if threat[1] == 3 and len(threat[0]) == 5:
+                    score = -999
+                elif threat[1] == 4 and len(threat[0]) == 5:
+                    score = -self.BLOCK_WIN_SCORE
+                elif threat[1] == 4 and len(threat[0]) == 6:
+                    score = -self.BLOCK_WIN_SCORE
+                elif threat[1] == 5:
+                    score = -self.BLOCK_WIN_SCORE
+        if score:
+            self.attacks[threat] = score
+            self.reward = sum(self.attacks.values())
 
     def check_rows(self, curr, turn):
         row_length = int(sqrt(self.get_board_size() + 1))
@@ -115,7 +114,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = (threat, [count, 0])
+        threat = Threat(tuple(threat), count)
         self.get_rewards(threat, turn)
 
     def check_columns(self, curr, turn):
@@ -150,7 +149,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = (threat, [count, 0])
+        threat = Threat(tuple(threat), count)
         self.get_rewards(threat, turn)
 
     def check_diag(self, curr, turn):
@@ -187,7 +186,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = (threat, [count, 0])
+        threat = Threat(tuple(threat), count)
         self.get_rewards(threat, turn)
 
         threat = [curr]
@@ -219,7 +218,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = (threat, [count, 0])
+        threat = Threat(tuple(threat), count)
         self.get_rewards(threat, turn)
 
     def analyze_opponent(self):
@@ -237,16 +236,12 @@ class Node:
 
 
 class ABP(Agent):
-    def find_optimal_move(self, leaves):
-        # find the best Node
-        index = 0
-        m = float('-inf')
-        for x in range(len(leaves)):
-            if leaves[x].reward > m:
-                m = leaves[x].reward
-                index = x
+    def find_optimal_move(self, leaves: List[Node]):
+        for leave in leaves:
+            print("Leave score is: {} => {}".format(leave.pos, leave.reward))
 
-        return leaves[index].pos
+        # find and return the best node pos
+        return max(leaves, key=lambda x: x.reward).pos
 
     def start_game(self, action_space: List[int]) -> None:
         pass
@@ -255,26 +250,20 @@ class ABP(Agent):
         pass
 
     def move(self, state: GomokuState) -> int:
-        free = state.empty.copy()
-        player = state.mine.copy()
-        opponent = state.others.copy()
+        free = state.empty
+        player = state.mine
+        opponent = state.others
         root = Node(None, -1, free, player, opponent)
         root.analyze_opponent()
 
         leaves = []
         for x in free:
             temp = Node(root, x, free, player, opponent)
-            for t in temp.parent.threats:
+            for t in temp.parent.attacks:
                 new_threat = deepcopy(t)
-                if x in new_threat[0]:
-                    new_threat[0].remove(x)
-                temp.get_rewards(new_threat, 1)
+                if x not in new_threat[0]:
+                    temp.get_rewards(new_threat, 1)
             temp.analyze_players_move(x)
             leaves.append(temp)
 
         return self.find_optimal_move(leaves)
-
-
-
-
-
