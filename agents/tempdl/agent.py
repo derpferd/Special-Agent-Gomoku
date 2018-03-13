@@ -4,7 +4,7 @@ from typing import List
 
 from gym_gomoku import GomokuState
 # from bootstrap import Bootstrap
-
+from utils import Verbosity
 from .. import Agent
 # from mlp import Mlp
 from . import bootstrap
@@ -13,15 +13,17 @@ from . import bootstrap
 class Tempdl(Agent):
 
     def start_game(self, action_space: List[int]) -> None:
-        print('Tempdl agent starting:')
+        if self.config.verbose.at_level(Verbosity.info):
+            print('Tempdl agent starting:')
         self.mlp = bootstrap.Bootstrap.create_mlp(2, 3, 361)
 
     def end_game(self, won: bool) -> None:
-        print('Game ended')
-        if won == True:
-            print('I won!')
-        else:
-            print('I lost!!')
+        if self.config.verbose.at_level(Verbosity.info):
+            print('Game ended')
+            if won == True:
+                print('I won!')
+            else:
+                print('I lost!!')
 
     def move(self, state: GomokuState) -> int:
         maxvalue = -1

@@ -1,0 +1,14 @@
+{
+  "type": "test",
+  "rounds": 30,
+  "agents": [
+    {
+      "id": "ABP v1",
+      "name": "abp_v1"
+    },
+    {
+      "id": "Gym Default Bot",
+      "name": "gym_bot"
+    }
+  ]
+}

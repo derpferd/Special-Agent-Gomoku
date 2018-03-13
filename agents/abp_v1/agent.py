@@ -5,6 +5,7 @@ from typing import List
 from math import sqrt, pow
 from copy import deepcopy
 
+from utils import Verbosity
 from .. import Agent
 from gym_gomoku import GomokuState
 
@@ -237,8 +238,9 @@ class Node:
 
 class ABP(Agent):
     def find_optimal_move(self, leaves: List[Node]):
-        for leave in leaves:
-            print("Leave score is: {} => {}".format(leave.pos, leave.reward))
+        if self.config.verbose.at_level(Verbosity.debug):
+            for leave in leaves:
+                print("Leave score is: {} => {}".format(leave.pos, leave.reward))
 
         # find and return the best node pos
         return max(leaves, key=lambda x: x.reward).pos

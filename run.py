@@ -8,6 +8,8 @@ import gym
 import os
 
 from collections import defaultdict
+
+import sys
 from gym_gomoku import GomokuEnv
 
 from agents import Agent, load_agents
@@ -29,10 +31,13 @@ def play_game(env_gen: Callable[[], GomokuEnv], agents: List[Agent], seed: int=N
     assert len(agents) == 2, "You must pass two agents."
 
     env = env_gen()
-    if seed is not None:
-        env.seed(seed)
+
+    seed, seed_nxt = env.seed(seed)
+    if verbose.at_level(Verbosity.info):
+        print("Seed: {}".format(seed))
 
     for agent in agents:
+        agent.np_random = env.np_random
         agent.start_game(env.action_space.valid_spaces)
 
     cur_agent, o_agent = agents  # type: Agent
@@ -78,12 +83,16 @@ def test(config: Config):
 
     scores = defaultdict(int)
     for round in range(config.rounds):
+        if config.verbose.at_level(Verbosity.info):
+            print("Starting round {}".format(round + 1))
         winner = play_game(create_env, agents, verbose=config.verbose)
         scores[winner] += 1
         if config.verbose.at_level(Verbosity.info):
             print("Winner for round {}: {}".format(round + 1, winner))
+        elif config.verbose.at_level(Verbosity.warning):
+            sys.stdout.write(".")
 
-    print("==== Scores ====")
+    print("\n==== Scores ====")
     for agent, score in scores.items():
         print("{}: {} of {}".format(agent, score, config.rounds))
 
@@ -103,7 +112,7 @@ def train(config: Config):
 def main(config, model_dir, verbose):
     """This is a program to run agents vs each other in Gomoku."""
     config = Config.from_json(json.load(config))
-    config.verbose = Verbosity(verbose + 1)
+    config.verbose = Verbosity(min(verbose + 1, len(Verbosity)))
     if config.verbose.at_level(Verbosity.warning):
         print("Verbosity level is {}".format(config.verbose.name))
 

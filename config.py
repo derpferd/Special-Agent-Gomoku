@@ -1,25 +1,16 @@
 # Author: Jonathan Beaulieu
-from enum import Enum, auto, IntEnum
+from enum import Enum, auto
 from typing import List
 
 import os
 
 from agents import AgentConfig
+from utils import Verbosity
 
 
 class ConfigType(Enum):
     test = auto()
     train = auto()
-
-
-class Verbosity(IntEnum):
-    error = auto()
-    warning = auto()
-    info = auto()
-    debug = auto()
-
-    def at_level(self, level):
-        return self >= level
 
 
 class AgentTestConfig(AgentConfig):

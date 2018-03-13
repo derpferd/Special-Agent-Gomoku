@@ -2,19 +2,25 @@
 from typing import List
 
 from gym_gomoku import GomokuState
+from numpy.random.mtrand import RandomState
+
+from utils import Verbosity
 
 
 class AgentConfig:
     id: str
     name: str
     is_human: bool
+    verbose: Verbosity
 
 
 class Agent:
     config: AgentConfig
+    np_random: RandomState
 
     def __init__(self, config):
         self.config = config
+        self.np_random = None
 
     def start_game(self, action_space: List[int]) -> None:
         """This function is run anytime a new game is started.
