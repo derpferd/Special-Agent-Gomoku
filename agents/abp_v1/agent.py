@@ -1,4 +1,5 @@
 # Author: Vaclav Hasenohrl
+# Jon is not helping :-P
 from collections import namedtuple
 from random import choice
 from typing import List
@@ -251,7 +252,7 @@ class Node:
             if curr - moves in s:
                 threat.append(curr - moves)
             elif curr - moves in self.f:
-                threat.append(curr - moves)
+                threat.append((curr - moves) + 1000)
             else:
                 break
             moves += 1
@@ -266,7 +267,7 @@ class Node:
             if curr + moves in s:
                 threat.append(curr + moves)
             elif curr + moves in self.f:
-                threat.append(curr + moves)
+                threat.append((curr + moves) + 1000)
                 break
             else:
                 break
@@ -287,7 +288,7 @@ class Node:
             if curr - moves * row_length in s:
                 threat.append(curr - moves * row_length)
             elif curr - moves * row_length in self.f:
-                threat.append(curr - moves * row_length)
+                threat.append((curr - moves * row_length) + 1000)
             else:
                 break
             moves += 1
@@ -302,7 +303,7 @@ class Node:
             if curr + moves * row_length in s:
                 threat.append(curr + moves * row_length)
             elif curr + moves * row_length in self.f:
-                threat.append(curr + moves * row_length)
+                threat.append((curr + moves * row_length) + 1000)
             else:
                 break
             moves += 1
@@ -324,7 +325,7 @@ class Node:
             if (r - moves) * row_length + (c + moves) in s:
                 threat.append((r - moves) * row_length + (c + moves))
             elif (r - moves) * row_length + (c + moves) in self.f:
-                threat.append((r - moves) * row_length + (c + moves))
+                threat.append(((r - moves) * row_length + (c + moves)) + 1000)
             else:
                 break
             moves += 1
@@ -339,7 +340,7 @@ class Node:
             if (r + moves) * row_length + (c - moves) in s:
                 threat.append((r + moves) * row_length + (c - moves))
             elif (r + moves) * row_length + (c - moves) in self.f:
-                threat.append((r + moves) * row_length + (c - moves))
+                threat.append(((r + moves) * row_length + (c - moves)) + 1000)
             else:
                 break
             moves += 1
@@ -355,7 +356,7 @@ class Node:
             if (r - moves) * row_length + (c - moves) in s:
                 threat.append((r - moves) * row_length + (c - moves))
             elif (r - moves) * row_length + (c - moves) in self.f:
-                threat.append((r - moves) * row_length + (c - moves))
+                threat.append(((r - moves) * row_length + (c - moves)) + 1000)
             else:
                 break
             moves += 1
@@ -370,7 +371,7 @@ class Node:
             if (r + moves) * row_length + (c + moves) in s:
                 threat.append((r + moves) * row_length + (c + moves))
             elif (r + moves) * row_length + (c + moves) in self.f:
-                threat.append((r + moves) * row_length + (c + moves))
+                threat.append(((r + moves) * row_length + (c + moves)) + 1000)
             else:
                 break
             moves += 1
@@ -382,9 +383,9 @@ class Node:
         temp_threat = []
         for i in range(len(threat)):
             if threat[i] >= 1000:
-                temp_threat[i] = 0
+                temp_threat.append(0)
             else:
-                temp_threat[i] = 1
+                temp_threat.append(1)
         for t in self.THREATS:
             if temp_threat == t:
                 score = t[1] if turn == 0 else -10*t[1]

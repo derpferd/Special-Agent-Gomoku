@@ -1,6 +1,6 @@
 {
   "type": "test",
-  "rounds": 100,
+  "rounds": 20,
   "agents": [
     {
       "id": "ABP v1",
