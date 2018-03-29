@@ -10,12 +10,27 @@ from .. import Agent
 from gym_gomoku import GomokuState
 
 
-Threat = namedtuple('Threat', ['positions', 'stones'])
+Threat = namedtuple('Threat', ['positions', 'reward'])
+Attack = namedtuple('Attack', ['positions', 'count'])
 
 
 class Node:
     WINNING_SCORE = 20000
     BLOCK_WIN_SCORE = 200000
+    THREATS = []
+
+    # 3 stone threat
+    THREATS.append(Threat(tuple([0, 1, 1, 1, 0]), 100))
+
+    # 4 stone threat
+    THREATS.append(Threat(tuple([0, 1, 1, 1, 1]), 1000))
+    THREATS.append(Threat(tuple([1, 0, 1, 1, 1]), 1000))
+    THREATS.append(Threat(tuple([1, 1, 0, 1, 1]), 1000))
+    THREATS.append(Threat(tuple([1, 1, 1, 0, 1]), 1000))
+    THREATS.append(Threat(tuple([1, 1, 1, 1, 0]), 1000))
+
+    # 5 stone threat (losing pattern)
+    THREATS.append(Threat(tuple([1, 1, 1, 1, 1]), 10000))
 
     def __init__(self, parent, pos, free, player, opponent):
         self.parent = parent
@@ -58,7 +73,7 @@ class Node:
         if turn == 0:
             if not self.is_in(threat[0], self.attacks):
                 if threat[1] == 3 and len(threat[0]) == 5:
-                    score = 1000
+                    score = 900
                 elif threat[1] == 4 and len(threat[0]) == 5:
                     score = self.WINNING_SCORE
                 elif threat[1] == 4 and len(threat[0]) == 6:
@@ -66,7 +81,7 @@ class Node:
                 elif threat[1] == 1 and len(threat[0]) == 3:
                     score = 1
                 elif threat[1] == 2 and len(threat[0]) == 4:
-                    score = 10
+                    score = 9
                 elif threat[1] == 5:
                     score = self.WINNING_SCORE
         else:
@@ -115,7 +130,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = Threat(tuple(threat), count)
+        threat = Attack(tuple(threat), count)
         self.get_rewards(threat, turn)
 
     def check_columns(self, curr, turn):
@@ -150,7 +165,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = Threat(tuple(threat), count)
+        threat = Attack(tuple(threat), count)
         self.get_rewards(threat, turn)
 
     def check_diag(self, curr, turn):
@@ -187,7 +202,7 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = Threat(tuple(threat), count)
+        threat = Attack(tuple(threat), count)
         self.get_rewards(threat, turn)
 
         threat = [curr]
@@ -219,14 +234,170 @@ class Node:
                 break
 
         threat = sorted(threat) if turn == 1 else threat
-        threat = Threat(tuple(threat), count)
+        threat = Attack(tuple(threat), count)
         self.get_rewards(threat, turn)
+
+    def check_opponent_rows(self, curr, turn):
+        row_length = int(sqrt(self.get_board_size() + 1))
+        s = self.p if turn == 0 else self.o
+
+        # check rows
+        # left
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if (curr - moves) // row_length != curr // row_length:
+                break
+            if curr - moves in s:
+                threat.append(curr - moves)
+            elif curr - moves in self.f:
+                threat.append(curr - moves)
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+        # right
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if (curr + moves) // row_length == curr // row_length:
+                break
+            if curr + moves in s:
+                threat.append(curr + moves)
+            elif curr + moves in self.f:
+                threat.append(curr + moves)
+                break
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+    def check_opponent_columns(self, curr, turn):
+        row_length = int(sqrt(self.get_board_size() + 1))
+        s = self.p if turn == 0 else self.o
+
+        # check columns
+        # down
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if curr - moves * row_length < 0:
+                break
+            if curr - moves * row_length in s:
+                threat.append(curr - moves * row_length)
+            elif curr - moves * row_length in self.f:
+                threat.append(curr - moves * row_length)
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+        # up
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if curr + moves * row_length >= pow(row_length, 2):
+                break
+            if curr + moves * row_length in s:
+                threat.append(curr + moves * row_length)
+            elif curr + moves * row_length in self.f:
+                threat.append(curr + moves * row_length)
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+    def check_opponent_diag(self, curr, turn):
+        row_length = int(sqrt(self.get_board_size() + 1))
+        s = self.p if turn == 0 else self.o
+        r = curr // row_length
+        c = curr - r * row_length
+
+        # check left to right
+        # down
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if r - moves < 0 and c + moves >= row_length:
+                break
+            if (r - moves) * row_length + (c + moves) in s:
+                threat.append((r - moves) * row_length + (c + moves))
+            elif (r - moves) * row_length + (c + moves) in self.f:
+                threat.append((r - moves) * row_length + (c + moves))
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+        # up
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if r + moves >= row_length and c - moves < 0:
+                break
+            if (r + moves) * row_length + (c - moves) in s:
+                threat.append((r + moves) * row_length + (c - moves))
+            elif (r + moves) * row_length + (c - moves) in self.f:
+                threat.append((r + moves) * row_length + (c - moves))
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+        # check right to left
+        # down
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if r - moves < 0 and c - moves < 0:
+                break
+            if (r - moves) * row_length + (c - moves) in s:
+                threat.append((r - moves) * row_length + (c - moves))
+            elif (r - moves) * row_length + (c - moves) in self.f:
+                threat.append((r - moves) * row_length + (c - moves))
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+        # up
+        threat = [curr]
+        moves = 1
+        for i in range(5):
+            if r + moves >= row_length and c + moves >= row_length:
+                break
+            if (r + moves) * row_length + (c + moves) in s:
+                threat.append((r + moves) * row_length + (c + moves))
+            elif (r + moves) * row_length + (c + moves) in self.f:
+                threat.append((r + moves) * row_length + (c + moves))
+            else:
+                break
+            moves += 1
+        self.evaluate_pattern(threat, turn)
+
+    def evaluate_pattern(self, threat, turn):
+        if len(threat) != 5:
+            return
+        temp_threat = []
+        for i in range(len(threat)):
+            if threat[i] >= 1000:
+                temp_threat[i] = 0
+            else:
+                temp_threat[i] = 1
+        for t in self.THREATS:
+            if temp_threat == t:
+                score = t[1] if turn == 0 else -10*t[1]
+                if not self.is_in(sorted(threat), self.attacks):
+                    self.attacks[sorted(threat)] = score
+                    self.reward += score
+        return
 
     def analyze_opponent(self):
         stack = self.o.copy()
         while stack:
             curr = stack.pop()
-            self.check_rows(curr, 1)
+            self.check_opponent_rows(curr, 1)
             self.check_columns(curr, 1)
             self.check_diag(curr, 1)
 
