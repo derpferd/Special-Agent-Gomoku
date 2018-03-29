@@ -1,6 +1,6 @@
 {
   "type": "test",
-  "rounds": 30,
+  "rounds": 100,
   "agents": [
     {
       "id": "Random",

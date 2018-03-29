@@ -1,5 +1,4 @@
 # Author: Jonathan Beaulieu
-from random import choice
 from typing import List
 
 from .. import Agent
@@ -14,4 +13,4 @@ class Random(Agent):
         pass
 
     def move(self, state: GomokuState) -> int:
-        return choice(list(state.board.valid_actions))
+        return self.np_random.choice(list(state.board.valid_actions))

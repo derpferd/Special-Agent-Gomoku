@@ -7,7 +7,7 @@ from gym_gomoku import GomokuState
 from utils import Verbosity
 from .. import Agent
 # from mlp import Mlp
-from . import bootstrap
+from .model import bootstrap
 
 
 class Tempdl(Agent):
@@ -15,7 +15,7 @@ class Tempdl(Agent):
     def start_game(self, action_space: List[int]) -> None:
         if self.config.verbose.at_level(Verbosity.info):
             print('Tempdl agent starting:')
-        self.mlp = bootstrap.Bootstrap.create_mlp(2, 3, 361)
+        self.mlp = bootstrap.Bootstrap.create_mlp(2, 3, 361, self.np_random)
 
     def end_game(self, won: bool) -> None:
         if self.config.verbose.at_level(Verbosity.info):

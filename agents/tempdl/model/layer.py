@@ -5,7 +5,7 @@ import numpy as np
 class Layer:
 
     def __init__(self, perceptrons):
-        self.perceptrons = perceptrons
+        self.perceptrons = list(perceptrons)
 
     def __weights_matrix(self):
         weights_matrix = []
