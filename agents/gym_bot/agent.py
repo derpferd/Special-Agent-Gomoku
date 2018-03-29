@@ -2,7 +2,7 @@
 # Ported by: Jonathan Beaulieu
 from typing import List
 
-from envs.util import gomoku_util
+from gym_gomoku.envs.util import gomoku_util
 
 from .. import Agent
 from gym_gomoku import GomokuState
