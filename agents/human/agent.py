@@ -30,27 +30,34 @@ class Human(Agent):
         move = None
         while move is None:
             raw_move = input("Enter the position of your move: ").upper()
-            col = "".join(filter(lambda x: x in string.ascii_letters, raw_move))
-            row = "".join(filter(lambda x: x in string.digits, raw_move))
-            if len(col) + len(row) != len(raw_move):
-                print("Invalid move!")
-                continue
             try:
-                row = int(row) - 1
+                raw_move = int(raw_move)
+                if 0 <= raw_move <= 360:
+                    row = raw_move // 19
+                    col = raw_move % 19
             except ValueError:
-                print("Invalid move!")
-                continue
-            if len(col) != 1 or row < 0:
-                print("Invalid move!")
-                continue
-            try:
-                col = string.ascii_uppercase.index(col)
-            except ValueError:
-                print("Invalid move!")
-                continue
-            if row >= state.board.size or col >= state.board.size:
-                print("Invalid move!")
-                continue
+                col = "".join(filter(lambda x: x in string.ascii_letters, raw_move))
+                row = "".join(filter(lambda x: x in string.digits, raw_move))
+                if len(col) + len(row) != len(raw_move):
+                    print("Invalid move!")
+                    continue
+                try:
+                    row = int(row) - 1
+                except ValueError:
+                    print("Invalid move!")
+                    continue
+                if len(col) != 1 or row < 0:
+                    print("Invalid move!")
+                    continue
+                try:
+                    col = string.ascii_uppercase.index(col)
+                except ValueError:
+                    print("Invalid move!")
+                    continue
+                if row >= state.board.size or col >= state.board.size:
+                    print("Invalid move!")
+                    continue
+
             coord = (row, col)
             action = state.coord_to_action(coord)
             if action not in state.empty:
