@@ -33,7 +33,7 @@ class Node:
     # 5 stone threat (losing pattern)
     THREATS.append(Threat(tuple([1, 1, 1, 1, 1]), 10000))
 
-    def __init__(self, parent, pos, free, player, opponent):
+    def __init__(self, parent, pos, free, player, opponent, board_size):
         self.parent = parent
         self.pos = pos
         if pos != -1:
@@ -46,12 +46,9 @@ class Node:
             self.o = opponent.copy()
         self.reward = 0
         self.attacks = {}  # A mapping of prospective moves to their score.
+        self.board_size = board_size
         # self.threats = {}  # A mapping of threats to their scores.
         # self.attacks = {}  # A mapping of threats to their scores.
-
-    # returns the number of (rows/columns)^2 - 1
-    def get_board_size(self):
-        return len(self.f) + len(self.p) + len(self.o)
 
     def is_in(self, threat, s):
         for t in s:
@@ -100,7 +97,7 @@ class Node:
             self.reward = sum(self.attacks.values())
 
     def check_rows(self, curr, turn):
-        row_length = int(sqrt(self.get_board_size() + 1))
+        row_length = self.board_size
         s = self.p if turn == 0 else self.o
         threat = [curr]
         # check rows
@@ -135,7 +132,7 @@ class Node:
         self.get_rewards(threat, turn)
 
     def check_columns(self, curr, turn):
-        row_length = int(sqrt(self.get_board_size() + 1))
+        row_length = self.board_size
         s = self.p if turn == 0 else self.o
         threat = [curr]
         # check columns
@@ -170,7 +167,7 @@ class Node:
         self.get_rewards(threat, turn)
 
     def check_diag(self, curr, turn):
-        row_length = int(sqrt(self.get_board_size() + 1))
+        row_length = self.board_size
         s = self.p if turn == 0 else self.o
         threat = [curr]
         r = curr // row_length
@@ -239,7 +236,7 @@ class Node:
         self.get_rewards(threat, turn)
 
     def check_opponent_rows(self, curr, turn):
-        row_length = int(sqrt(self.get_board_size() + 1))
+        row_length = self.board_size
         s = self.p if turn == 0 else self.o
 
         # check rows
@@ -275,7 +272,7 @@ class Node:
         self.evaluate_pattern(threat, turn)
 
     def check_opponent_columns(self, curr, turn):
-        row_length = int(sqrt(self.get_board_size() + 1))
+        row_length = self.board_size
         s = self.p if turn == 0 else self.o
 
         # check columns
@@ -310,7 +307,7 @@ class Node:
         self.evaluate_pattern(threat, turn)
 
     def check_opponent_diag(self, curr, turn):
-        row_length = int(sqrt(self.get_board_size() + 1))
+        row_length = self.board_size
         s = self.p if turn == 0 else self.o
         r = curr // row_length
         c = curr - r * row_length
@@ -427,12 +424,12 @@ class ABP(Agent):
         free = state.empty
         player = state.mine
         opponent = state.others
-        root = Node(None, -1, free, player, opponent)
+        root = Node(None, -1, free, player, opponent, state.board.size)
         root.analyze_opponent()
 
         leaves = []
         for x in free:
-            temp = Node(root, x, free, player, opponent)
+            temp = Node(root, x, free, player, opponent, state.board.size)
             for t in temp.parent.attacks:
                 new_threat = deepcopy(t)
                 if x not in new_threat[0]:
