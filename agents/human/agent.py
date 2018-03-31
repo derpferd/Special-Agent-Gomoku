@@ -35,6 +35,9 @@ class Human(Agent):
                 if 0 <= raw_move <= 360:
                     row = raw_move // 19
                     col = raw_move % 19
+                else:
+                    print("Invalid move!")
+                    continue
             except ValueError:
                 col = "".join(filter(lambda x: x in string.ascii_letters, raw_move))
                 row = "".join(filter(lambda x: x in string.digits, raw_move))
