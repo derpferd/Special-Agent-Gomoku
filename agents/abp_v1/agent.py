@@ -75,13 +75,6 @@ class Node:
             self.reward = 0
         self.board_size = board_size
 
-    def is_in(self, threat, s):
-        for t in s:
-            if t[0] == threat:
-                return True
-
-        return False
-
     # OLD CODE
 
     # def get_rewards(self, threat, turn):
@@ -403,7 +396,7 @@ class Node:
         for t in self.COMBINATIONS:
             if temp_threat == list(t[0]):
                 score = t[1] if turn % 2 == 0 else -5 * t[1]
-                if not self.is_in(sorted(threat), self.combinations):
+                if tuple(sorted(threat)) not in self.combinations:
                     self.combinations[tuple(sorted(threat))] = score
                     self.reward += score
         return
