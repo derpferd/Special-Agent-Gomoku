@@ -393,7 +393,7 @@ class Node:
             temp_threat.append(threat[i] // 1000)
         for t in self.COMBINATIONS:
             if temp_threat == list(t[0]):
-                score = t[1] if turn == 0 else -5*t[1]
+                score = t[1] * pow(0.9, turn) if turn % 2 == 0 else -1.5 * t[1] * pow(0.9, turn)
                 if not self.is_in(sorted(threat), self.combinations):
                     self.combinations[tuple(sorted(threat))] = score
                     self.reward += score
@@ -418,14 +418,14 @@ class Node:
 
 
 class ABP(Agent):
-    def check_free_positions_radius_2(self, curr, free):
+    def check_free_positions_radius_n(self, curr, free, n):
         row_length = 19
         r = curr // row_length
         c = curr - r * row_length
         moves = 1
         free_mod = set()
 
-        for i in range(2):
+        for i in range(n):
             # left
             if c - moves >= 0 and curr - moves in free:
                 free_mod.add(curr - moves)
@@ -453,16 +453,16 @@ class ABP(Agent):
 
         return free_mod
 
-    def append_free_positions_radius_2(self, free, player, opponent):
+    def append_free_positions_radius_n(self, free, player, opponent, n):
         free_mod = set()
         p = player.copy()
         o = opponent.copy()
         while p:
             curr = p.pop()
-            free_mod = free_mod | self.check_free_positions_radius_2(curr, free)
+            free_mod = free_mod | self.check_free_positions_radius_n(curr, free, n)
         while o:
             curr = o.pop()
-            free_mod = free_mod | self.check_free_positions_radius_2(curr, free)
+            free_mod = free_mod | self.check_free_positions_radius_n(curr, free, n)
         return free_mod
 
     def find_optimal_move(self, leaves: List[Node]):
@@ -486,14 +486,14 @@ class ABP(Agent):
         if len(free) == 361:
             return 180
 
-        free_pruned = self.append_free_positions_radius_2(free, player, opponent)
+        free_pruned = self.append_free_positions_radius_n(free, player, opponent, 2)
         root = Node(None, -1, free, player, opponent, state.board.size)
         root.analyze_board_root()
 
         turn = 0
         parents = [root]
         leaves = []
-        for i in range(3):
+        for i in range(1):
             for node in parents:
                 for x in free_pruned:
                     temp = Node(node, x, free, player, opponent, state.board.size)
@@ -501,13 +501,17 @@ class ABP(Agent):
                         if x in t:
                             temp.reward -= temp.combinations[t]
                             del temp.combinations[t]
-                    temp.analyze_player(x, turn)
+                    temp.analyze_player(x, turn % 2)
                     leaves.append(temp)
-            if turn == 0:
-                parents = sorted(leaves, key=lambda x: x.reward)[-len(leaves) // 10:]
+            if turn % 2 == 0:
+                parents = sorted(leaves, key=lambda x: x.reward)[-len(leaves) // 5:]
+                if not parents:
+                    parents = [sorted(leaves, key=lambda x: x.reward)[-1]]
             else:
-                parents = sorted(leaves, key=lambda x: x.reward)[:len(leaves) // 10]
-            turn = (turn + 1) % 2
+                parents = sorted(leaves, key=lambda x: x.reward)[:len(leaves) // 5]
+                if not parents:
+                    parents = [sorted(leaves, key=lambda x: x.reward)[0]]
+            turn = turn + 1
             leaves = []
 
         move = self.find_optimal_move(parents)
