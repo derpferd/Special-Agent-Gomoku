@@ -1,6 +1,7 @@
 # Author: Vaclav Hasenohrl
 # Jon is not helping :-P
 from collections import namedtuple
+from enum import IntEnum, unique
 from random import choice
 from typing import List
 from math import sqrt, pow
@@ -13,6 +14,14 @@ from gym_gomoku import GomokuState
 
 Combination = namedtuple('Combination', ['positions', 'reward'])
 Attack = namedtuple('Attack', ['positions', 'count'])
+
+
+@unique
+class Direction(IntEnum):
+    horizontal = 0
+    vertical = 1
+    diagonal_l_to_r = 2
+    diagonal_r_to_l = 3
 
 
 class Node:
@@ -415,6 +424,42 @@ class Node:
             self.check_rows(curr, turn)
             self.check_columns(curr, turn)
             self.check_diag(curr, turn)
+
+    def get_pos_for_direction(self, pos: int, direction: Direction) -> List[int]:
+        """
+
+        Args:
+            pos: The center position
+            direction: The direction to get the positions of.
+
+        Returns:
+            A sorted list of positions connected to the `pos` with in 4 spaces.
+        """
+        x, y = pos % self.board_size, pos // self.board_size
+        d_x_0, d_x_m = 0 - x, self.board_size - x
+        d_y_0, d_y_m = 0 - y, self.board_size - y
+
+        if direction == Direction.horizontal:
+            return list(map(lambda i: i + pos, range(max(-4, d_x_0), min(5, d_x_m))))
+        elif direction == Direction.vertical:
+            return list(map(lambda i: (i * self.board_size) + pos, range(max(-4, d_y_0), min(5, d_y_m))))
+        elif direction == Direction.diagonal_l_to_r:
+            return list(map(lambda i: (i * self.board_size) + i + pos, range(max(-4, d_x_0, d_y_0), min(5, d_x_m, d_y_m))))
+        elif direction == Direction.diagonal_r_to_l:
+            return list(map(lambda i: -(i * self.board_size) + pos + i, reversed(range(max(-4, d_x_0, -(d_y_m-1)), min(5, d_x_m, y+1)))))
+
+    SCORES = {i: v for i, v in enumerate((0, 19, 15, 11, 7, 3))}
+
+    def score_pos(self, pos):
+        score = 0
+        for direction in Direction:
+            for row in zip(*[self.get_pos_for_direction(pos, direction)[i:] for i in range(5)]):
+                empty_spaces = sum(map(lambda x: 0 if x in self.p else 1 if x in self.f else 100, row))
+                score += self.SCORES.get(empty_spaces, 0)
+        return score
+
+    def score_board(self):
+        return sum(self.score_pos(i) for i in range(self.board_size**2))
 
 
 class ABP(Agent):
