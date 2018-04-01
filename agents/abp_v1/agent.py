@@ -190,14 +190,15 @@ class ABP(Agent):
         root = Node(None, -1, free, player, opponent, state.board.size, 1)
         root.analyze_board_root()
 
-        turn = 0
         parents = [root]
-        leaves = []
         for i in range(3):
-            for node in parents:
-                for move in free_pruned:
-                    leaves += [Node(node, move, free, player, opponent, state.board.size, turn % 2)]
-            if turn % 2 == 0:
+            def create_leave(args):
+                node, move = args
+                return Node(node, move, free, player, opponent, state.board.size, i % 2)
+
+            leaves = list(map(create_leave, ((node, move) for node in parents for move in free_pruned)))
+
+            if i % 2 == 0:
                 parents = sorted(leaves, key=lambda x: x.reward)[-len(leaves) // 10:]
                 if not parents:
                     parents = [sorted(leaves, key=lambda x: x.reward)[-1]]
@@ -205,8 +206,6 @@ class ABP(Agent):
                 parents = sorted(leaves, key=lambda x: x.reward)[:len(leaves) // 10]
                 if not parents:
                     parents = [sorted(leaves, key=lambda x: x.reward)[0]]
-            turn = turn + 1
-            leaves = []
 
         move = self.find_optimal_move(parents)
         return move
