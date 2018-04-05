@@ -24,7 +24,10 @@ class Bootstrap:
     def create_mlp(n_layers, n_perceptrons, n_weights, random=None):
         if random is None:
             random = np.random.RandomState()
-        layers = [Bootstrap.create_layer(n_perceptrons, n_weights, random) for _ in range(n_layers)] + \
-                 [Bootstrap.create_layer(1, n_weights, random)]  # output layer
+        #changed this so it will work but unsure if it is correct
+        #now the weights look like 361, 3 for each hidden layer, and 1 for output
+        layers = [Bootstrap.create_layer(n_perceptrons, n_weights, random)] + \
+                 [Bootstrap.create_layer(n_perceptrons, n_perceptrons, random) for _ in range(n_layers-1)] + \
+                 [Bootstrap.create_layer(1, n_perceptrons, random)]  # output layer
         return mlp.Mlp(layers)
 

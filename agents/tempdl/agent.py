@@ -12,6 +12,7 @@ from .model import bootstrap
 
 class Tempdl(Agent):
 
+    #Initialize the MultiLayer Perceptron
     def start_game(self, action_space: List[int]) -> None:
         if self.config.verbose.at_level(Verbosity.info):
             print('Tempdl agent starting:')
@@ -25,6 +26,8 @@ class Tempdl(Agent):
             else:
                 print('I lost!!')
 
+    # Check every valid action possible from the current board state
+    # Return the action with the highest potential reward
     def move(self, state: GomokuState) -> int:
         maxvalue = -1
         selected_action = -1
@@ -33,9 +36,14 @@ class Tempdl(Agent):
             if value > maxvalue:
                 maxvalue = value
                 selected_action = action
+        #print(maxvalue)
         return selected_action
 
+    #Calculate the value of the state at t+1 if action is taken using the MLP
     def evaluate(self, action, state):
         # set state to state after action
-        return random()
+        new_state = state.act(action)
+        board_vector = self.mlp.vector(new_state)
+        return self.mlp.output(board_vector)
+        #return random()
         pass

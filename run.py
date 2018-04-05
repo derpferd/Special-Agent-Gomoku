@@ -46,9 +46,10 @@ def play_game(env_gen: Callable[[], GomokuEnv], agents: List[Agent], seed: int=N
     while not env.done:
         if verbose.at_level(Verbosity.debug) or cur_agent.config.is_human:
             env.render()
-        action = cur_agent.move(env.state)
-        _, reward, done, _ = env.step(action)
 
+        action = cur_agent.move(env.state)
+
+        _, reward, done, _ = env.step(action)
         if done:
             cur_agent.end_game(reward == -1)
             o_agent.end_game(reward == 1)

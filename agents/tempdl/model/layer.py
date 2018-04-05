@@ -16,6 +16,7 @@ class Layer:
     def output(self, input_vector):
         weights_matrix = self.__weights_matrix()
         bias_vector = [p.bias for p in self.perceptrons]
+
         if len(input_vector) != len(weights_matrix[0]):
             raise ValueError("dimensions for input and weights don't match")
         r = np.matmul(weights_matrix, input_vector)
