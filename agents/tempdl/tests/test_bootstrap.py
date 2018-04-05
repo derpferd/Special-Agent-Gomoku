@@ -1,4 +1,4 @@
-from model.bootstrap import Bootstrap
+from agents.tempdl.model.bootstrap import Bootstrap
 
 
 def test_create():
