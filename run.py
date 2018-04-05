@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # Author: Jonathan Beaulieu
 import json
+import time
 from typing import List, Callable, Optional
 
 import click
@@ -82,20 +83,24 @@ def test(config: Config):
             agent.load_model(model_dir)
         agents += [agent]
 
+    total_start_time = time.time()
     scores = defaultdict(int)
     for round in range(config.rounds):
+        start_time = time.time()
         if config.verbose.at_level(Verbosity.info):
             print("Starting round {}".format(round + 1))
         winner = play_game(create_env, agents, verbose=config.verbose)
         scores[winner] += 1
         if config.verbose.at_level(Verbosity.info):
             print("Winner for round {}: {}".format(round + 1, winner))
+            print(f"Time for round was: {time.time()-start_time:.3f} secs")
         elif config.verbose.at_level(Verbosity.warning):
             sys.stdout.write(".")
 
     print("\n==== Scores ====")
     for agent, score in scores.items():
         print("{}: {} of {}".format(agent, score, config.rounds))
+    print(f"\n\nTotal Time: {time.time()-total_start_time:.3f} secs")
 
 
 def train(config: Config):
