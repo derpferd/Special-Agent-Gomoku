@@ -5,10 +5,10 @@ class Mlp:
         self.layers = layers
 
     def output(self, input_vector):
-        output = self.layers[0].output(input_vector)
+        output = self.layers[0].output_(input_vector)
         #print("Layers: ", 0, " ", self.layers[0])
         for i in range(1, len(self.layers)):
-            output = self.layers[i].output(output)
+            output = self.layers[i].output_(output)
             #print("Layers: ", i, " ", self.layers[i])
         return output[0]
 
